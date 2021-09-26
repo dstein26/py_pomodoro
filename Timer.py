@@ -16,20 +16,46 @@ class Timer:
     _timeLeft = 0    # Time left
     _event = None
     
+    _observersTrans = []    # State Transition observers
+    _observersTime = []     # Time event observers
+    
     # Initialize
     def __init__(self):
         self._lastTime = dt.timestamp(dt.now())
-        self.transistion_to(Timer_State_Stopped())
+        self.transition_to(Timer_State_Stopped())
+        
+    # Attach an observer function
+    def attach(self, what, function):
+        if (what.lower() == "transition"):
+            self._observersTrans.append(function)
+        elif (what.lower() == "time"):
+            self._observersTime.append(function)
+            
+    # Remove an observer funciton
+    def detach(self, what, function):
+        if (what.lower() == "transition"):
+            self._observersTrans.remove(function)
+        elif (what.lower() == "time"):
+            self._observersTime.remove(function)
+            
     
     # State transistion
-    def transistion_to(self, state):
+    def transition_to(self, state):
         self._state = state
         self._state.context = self
+        self._state.postTransitionEvent()
         self._lastTime = dt.timestamp(dt.now())
+        
+        for o in self._observersTrans:
+            o(self)
 
     def timeEvent(self):
-        if (self._event != None):
-            self._event()
+        for o in self._observersTime:
+            o(self)
+            
+    @property
+    def state(self):
+        return self._state.name
     
     @property
     def event(self):
@@ -70,7 +96,6 @@ class Timer_State(ABC):
     @context.setter
     def context(self, context):
         self._context = context
-        self.postTransitionEvent()
         
     @abstractmethod
     def postTransitionEvent(self):
@@ -112,7 +137,7 @@ class Timer_State_Stopped(Timer_State):
     
     def start(self):
         self.checkTime()
-        self.context.transistion_to(Timer_State_Running())
+        self.context.transition_to(Timer_State_Running())
         
     def pause(self):
         pass
@@ -138,7 +163,7 @@ class Timer_State_Running(Timer_State):
         if (self.context._timeLeft <= 0):
             self.context._timeLeft = 0
             self.context.timeEvent()
-            self.context.transistion_to(Timer_State_Paused())
+            self.context.transition_to(Timer_State_Paused())
             
         return self.context._timeLeft
     
@@ -146,10 +171,10 @@ class Timer_State_Running(Timer_State):
         pass
     
     def pause(self):
-        self.context.transistion_to(Timer_State_Paused())
+        self.context.transition_to(Timer_State_Paused())
     
     def stop(self):
-        self.context.transistion_to(Timer_State_Stopped())
+        self.context.transition_to(Timer_State_Stopped())
         
 class Timer_State_Paused(Timer_State):
     _name = "PAUSED"
@@ -163,10 +188,10 @@ class Timer_State_Paused(Timer_State):
         
     def start(self):
         self.checkTime()
-        self.context.transistion_to(Timer_State_Running())
+        self.context.transition_to(Timer_State_Running())
     
     def stop(self):
-        self.context.transistion_to(Timer_State_Stopped())
+        self.context.transition_to(Timer_State_Stopped())
         
     def pause(self):
         pass
@@ -176,19 +201,23 @@ class Timer_State_Paused(Timer_State):
         return self.context._timeLeft
         
         
-def exampleEvent():
+def exampleEvent(context):
     print("Time's Up!")
+    
+def exampleStateEvent(context):
+    print(f"Entered State {context.state}")
 
 if __name__ == "__main__":
     import time
     tmr = Timer()
-    tmr.event = exampleEvent
-    
+    tmr.attach("time", exampleEvent)
+    tmr.attach("transition", exampleStateEvent)
+
     tmr.setTimer(10)
     print(tmr.checkTime())
     tmr.start()
     
-    for i in range(10):
+    for i in range(22):
         print(tmr.checkTime())
         time.sleep(0.5)
     
