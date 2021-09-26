@@ -11,10 +11,14 @@ from Pomodoro_State_Machine import Pomodoro_State_Machine
 import numpy as np
     
 class GUI:
+    
+    _fontTime=('Bell MT', 30)
+    _fontButton=('Centaur', 15)
+    
     def __init__(self):
         # Initialize Timer
         self.timer = Timer()
-        self.timer.setTimer(120)
+        self.timer.setTimer(25*60)
         
         # Create window    
         self.top = tk.Tk()
@@ -32,18 +36,21 @@ class GUI:
         self.strTime = tk.StringVar()
         self.lblTime = tk.Label(master=self.frmTimer, 
                                 textvariable=self.strTime,
-                                font=('Helvatical bold',30))
+                                font=self._fontTime)
         self.lblTime.pack()
         
         self.btnStart = tk.Button(master=self.frmButtons, 
-                                  command=self.timer.start, text="Start")
+                                  command=self.timer.start, text="Start",
+                                  font=self._fontButton)
         self.btnStart.pack(side = tk.LEFT)
         
         self.btnPause = tk.Button(master=self.frmButtons, 
-                                  command=self.timer.pause, text="Pause")
+                                  command=self.timer.pause, text="Pause",
+                                  font=self._fontButton)
         self.btnPause.pack(side = tk.LEFT)
         self.btnStop = tk.Button(master=self.frmButtons, 
-                                 command=self.timer.stop, text="Stop")
+                                 command=self.timer.stop, text="Stop",
+                                  font=self._fontButton)
         self.btnStop.pack(side = tk.LEFT)
         
     def run(self):
