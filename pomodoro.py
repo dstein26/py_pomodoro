@@ -7,6 +7,7 @@ Created on Fri Sep 24 08:27:09 2021
 
 import tkinter as tk
 from Timer import Timer
+from Pomodoro_State_Machine import Pomodoro_State_Machine
 import numpy as np
     
 class GUI:
@@ -44,10 +45,10 @@ class GUI:
         self.btnStop = tk.Button(master=self.frmButtons, 
                                  command=self.timer.stop, text="Stop")
         self.btnStop.pack(side = tk.LEFT)
-    
-    
-        self.timeEvent()
         
+    def run(self):
+        self.timeEvent()
+
         # Run
         self.top.mainloop()
         
@@ -55,7 +56,7 @@ class GUI:
         t = self.timer.checkTime()
         (m, s) = convertToMS(t)
         
-        self.strTime.set(f"{m}:{s:02d}")
+        self.strTime.set(f"{m:02d}:{s:02d}")
         self.top.after(300, self.timeEvent)
         
 
@@ -67,6 +68,7 @@ def convertToMS(time):
 
 if __name__ == "__main__":
     gui = GUI()
-    
+    sm = Pomodoro_State_Machine(gui.timer)
+    gui.run()
     
  
