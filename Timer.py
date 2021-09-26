@@ -51,9 +51,17 @@ class Timer:
     
     def stop(self):
         self._state.stop()
+        
+    def pause(self):
+        self._state.pause()
     
 class Timer_State(ABC):
     _context = None
+    _name = ""
+    
+    @property
+    def name(self):
+        return self._name
     
     @property
     def context(self):
@@ -89,6 +97,8 @@ class Timer_State(ABC):
         pass
     
 class Timer_State_Stopped(Timer_State):
+    _name = "STOPPED"
+    
     def postTransitionEvent(self):
         self.context.setTimer(self.context._time)
     
@@ -111,6 +121,8 @@ class Timer_State_Stopped(Timer_State):
         pass
 
 class Timer_State_Running(Timer_State):
+    _name = "RUNNING"
+    
     def postTransitionEvent(self):
         pass
     
@@ -121,6 +133,7 @@ class Timer_State_Running(Timer_State):
         ct = dt.timestamp(dt.now())
         t = ct - self.context._lastTime
         self.context._timeLeft -= t
+        self.context._lastTime = ct
         
         if (self.context._timeLeft <= 0):
             self.context._timeLeft = 0
@@ -139,6 +152,8 @@ class Timer_State_Running(Timer_State):
         self.context.transistion_to(Timer_State_Stopped())
         
 class Timer_State_Paused(Timer_State):
+    _name = "PAUSED"
+    
     def postTransitionEvent(self):
         pass
     

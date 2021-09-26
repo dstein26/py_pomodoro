@@ -7,42 +7,66 @@ Created on Fri Sep 24 08:27:09 2021
 
 import tkinter as tk
 from Timer import Timer
-
-
-        
-def buttonPress(event):
-    print("Button Pressed")
+import numpy as np
     
+class GUI:
+    def __init__(self):
+        # Initialize Timer
+        self.timer = Timer()
+        self.timer.setTimer(120)
+        
+        # Create window    
+        self.top = tk.Tk()
+        
+        # Add widgets to window
+        # Frames
+        self.frmImage = tk.Frame(bg="red", width = 100)
+        self.frmImage.pack(side=tk.LEFT, fill=tk.Y)
+        self.frmTimer = tk.Frame(bg="white")
+        self.frmTimer.pack(fill=tk.X)
+        self.frmButtons = tk.Frame()
+        self.frmButtons.pack(fill=tk.X)
+        
+        # Timer Label
+        self.strTime = tk.StringVar()
+        self.lblTime = tk.Label(master=self.frmTimer, 
+                                textvariable=self.strTime,
+                                font=('Helvatical bold',30))
+        self.lblTime.pack()
+        
+        self.btnStart = tk.Button(master=self.frmButtons, 
+                                  command=self.timer.start, text="Start")
+        self.btnStart.pack(side = tk.LEFT)
+        
+        self.btnPause = tk.Button(master=self.frmButtons, 
+                                  command=self.timer.pause, text="Pause")
+        self.btnPause.pack(side = tk.LEFT)
+        self.btnStop = tk.Button(master=self.frmButtons, 
+                                 command=self.timer.stop, text="Stop")
+        self.btnStop.pack(side = tk.LEFT)
+    
+    
+        self.timeEvent()
+        
+        # Run
+        self.top.mainloop()
+        
+    def timeEvent(self):
+        t = self.timer.checkTime()
+        (m, s) = convertToMS(t)
+        
+        self.strTime.set(f"{m}:{s:02d}")
+        self.top.after(300, self.timeEvent)
+        
+
+def convertToMS(time):
+    m = (int) (time / 60)
+    s = (int) (time % 60)
+    return (m, s)
+        
 
 if __name__ == "__main__":
-    # Init timer class
-    timer = Timer()
-    
-    # Create window    
-    top = tk.Tk()
-    
-    # Add widgets to window
-    # Frames
-    frmImage = tk.Frame(bg="red", width = 100)
-    frmImage.pack(side=tk.LEFT, fill=tk.Y)
-    frmTimer = tk.Frame(bg="white")
-    frmTimer.pack(fill=tk.X)
-    frmButtons = tk.Frame()
-    frmButtons.pack(fill=tk.X)
-    
-    # Timer Label
-    lblTime = tk.Label(master=frmTimer, text="00:00")
-    lblTime.pack()
-    
-    btnStart = tk.Button(master=frmButtons, text="Start")
-    btnStart.pack(side = tk.LEFT)
-    
-    btnPause = tk.Button(master=frmButtons, text="Pause")
-    btnPause.pack(side = tk.LEFT)
-    btnStop = tk.Button(master=frmButtons, text="Stop")
-    btnStop.pack(side = tk.LEFT)
+    gui = GUI()
     
     
-    # Run
-    top.mainloop()
  
